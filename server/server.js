@@ -8,6 +8,7 @@ const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
 let app = express();
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
@@ -40,21 +41,40 @@ app.get('/todos/:id', (req, res) => {
 
     if (!ObjectID.isValid(id)) {
         console.log('Id is not valid');
-       return res.status(404).send();
+        return res.status(404).send();
     }
 
     Todo.findById(id).then((todo) => {
         if (!todo) {
             console.log('Todo not found');
-           return res.status(400).send();
+            return res.status(400).send();
         }
         console.log('Todo: ', JSON.stringify(todo, undefined, 2));
         res.send({todo});
     }).catch((e) => res.status(400).send());
 });
 
-app.listen(3000, () => {
-    console.log('Server up on port 3000');
+app.delete('/todos/:id', (req, res) => {
+    let id = req.params.id;
+
+
+    if (!ObjectID.isValid(id)) {
+        console.log('Id is not valid');
+        return res.status(404).send();
+    }
+
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo) {
+            console.log('Todo not found');
+            return res.status(404).send();
+        }
+        console.log('Todo: ', JSON.stringify(todo, undefined, 2));
+        res.send({todo});
+    }).catch((e) => res.status(400).send());
+});
+
+app.listen(port, () => {
+    console.log(`Server up on port ${port}`);
 });
 
 module.exports = {app};
